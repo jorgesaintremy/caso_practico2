@@ -1,0 +1,44 @@
+---
+- name: Instalar nginx usando podman en VM
+  hosts: vm
+  gather_facts: false
+  become: true
+  vars_files:
+    - variables.yml
+  tasks:
+    - name: Create Podman Network
+      containers.podman.podman_network:
+        name: wordpress-net
+        state: present
+    
+    - name: ACR Login
+      containers.podman.podman_login:
+        registry: "{{ acr_name }}.azurecr.io"
+        username: "{{ acr_username }}"
+        password: "{{ acr_password }}"
+      # when: acr_username is defined and acr_password is defined    
+    
+    - name: Descargar imagen desde ACR
+      containers.podman.podman_image:
+        name: "{{ nginx_acr_image }}"
+        tag: "{{ tag }}"
+        #pull: true # Fuerza la descarga si hay nueva versión
+        username: "{{ acr_username }}"
+        password: "{{ acr_password }}"
+      #register: pull_result
+
+    #- name: Detener contenedor anterior (si existe)
+     # containers.podman.podman_container:
+      #  name: "{{ container_name }}"
+       # state: absent
+
+
+    - name: Ejecutar contenedor con Podman
+      containers.podman.podman_container:
+        name: "demonnginx"
+        image: nginx
+        state: started
+        restart_policy: always
+        ports:
+          - "80:80" # Mapeo de puertos host:contenedor
+      register: container_run

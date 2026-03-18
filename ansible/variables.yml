@@ -1,0 +1,40 @@
+---
+#Login ACR
+acr_name: "containerRegistryCP2saintremy"
+acr_username: "containerRegistryCP2saintremy"
+acr_password: "GC0HzrE7egyP4SLwokALBZ92dR6adiRxgNm3tWOkJ24ZKfOwZvXYJQQJ99CCACfhMk5Eqg7NAAACAZCRvb4Z"
+#Imagenes ACR
+tag: casopractico2
+nginx_image: docker.io/library/nginx:alpine
+nginx_acr_image: "{{ acr_name }}.azurecr.io/cp2/nginx:{{ tag }}"
+redis_image: docker.io/bitnami/redis:latest
+redis_acr_image: "{{ acr_name }}.azurecr.io/cp2/redis:{{ tag }}"
+vote_image: docker.io/suhuruli/azure-vote-front:latest
+vote_acr_image: "{{ acr_name }}.azurecr.io/cp2/azure-vote-front:{{ tag }}"
+# AKS
+app:
+  backend: 
+    name: backend
+    image: "{{ redis_acr_image }}"
+    replicas: 1
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    port: 6379
+    pv: redisdata
+    pvc: redispvc
+    mountPath: /bitnami/redis/data
+  frontend:
+    name: frontend
+    image: "{{ vote_acr_image }}"
+    replicas: 1
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    port: 80

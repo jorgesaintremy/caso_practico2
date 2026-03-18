@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: backend
+    namespace: cp2
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: backend
+    template:
+        metadata:
+            labels:
+                app: backend
+        spec:
+            nodeSelector:
+                "kubernetes.io/os": linux
+            containers:
+            - name: backend
+              image: containerregistrycp2saintremy.azurecr.io/cp2/redis:casopractico2
+            env:
+              - name: ALLOW_EMPTY_PASSWORD
+                value: "yes"
+            ports:
+            - containerPort: 6379
+              name: redisdata
+            resources:
+                requests:
+                    cpu: 100m
+                    memory: 128Mi
+                limits:
+                    cpu: 250m
+                    memory: 256Mi
+
+            #volumeMounts:
+           # - name: redisdata
+            #  mountPath: /bitnami/redis/data
+        #volumes:
+       # - name: redispvc
+        #  persistentVolumeClaim:
+         #   claimName: redispvc
+         #securityContext:
+          #  fsGroup: 1001

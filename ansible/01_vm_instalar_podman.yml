@@ -1,0 +1,17 @@
+---
+- name: Install Podman on VM
+  hosts: vm
+  gather_facts: false
+  become: true
+  # referenciamos el fichero de variables
+  vars_files:
+    - variables.yml
+  tasks:
+  - name: Update package list
+    apt:
+      update_cache: yes
+
+  - name: Install Podman
+    apt:
+      name: podman
+      state: present

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: frontend
+    namespace: cp2
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: frontend
+    template:
+        metadata:
+            labels:
+                app: frontend
+        spec:
+            nodeSelector:
+                "kubernetes.io/os": linux
+            containers:
+            - name: frontend
+              image: containerregistrycp2saintremy.azurecr.io/cp2/azure-vote-front:casopractico2
+              resources:
+                requests:
+                    cpu: 100m
+                    memory: 128Mi
+                limits:
+                    cpu: 200m
+                    memory: 256Mi
+              ports:
+              - containerPort: 80
+              env:
+              - name: REDIS
+                value: backend

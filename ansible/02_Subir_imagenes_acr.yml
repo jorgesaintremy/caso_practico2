@@ -1,0 +1,49 @@
+# Loguin en ACR desde localhost
+- name: Login ACR
+  hosts: local
+  gather_facts: false
+  become: false
+  vars_files: variables.yml
+  tasks:
+    - name: Loguear Podman
+      containers.podman.podman_login:
+        registry: "{{ acr_name }}.azurecr.io"
+        username: "{{ acr_username }}"
+        password: "{{ acr_password }}"
+
+# Descarga de las tres imágenes
+- name: Descargar y Subir imagenes ACR
+  hosts: local
+  vars_files: variables.yml
+  tasks:
+    - name: Descargar Imágenes
+      containers.podman.podman_image:
+        name: "{{ item }}"
+      loop:
+        - "{{ nginx_image }}"
+        - "{{ redis_image }}"
+        - "{{ vote_image }}"
+
+# Tagueamos como casopractico2 las imagenes y renombramos
+    - name: Taguear nginx
+      containers.podman.podman_tag:
+        image: "{{ nginx_image }}"
+        target_names: "{{ nginx_acr_image }}"
+    - name: Taguear redis
+      containers.podman.podman_tag:
+        image: "{{ redis_image }}"
+        target_names: "{{ redis_acr_image }}"
+    - name: Taguear azure-vote-front
+      containers.podman.podman_tag:
+        image: "{{ vote_image }}"
+        target_names: "{{ vote_acr_image }}"
+
+# subimos las imagenes al ACR
+    - name: Subir Imágenes
+      containers.podman.podman_image:
+        name: "{{ item }}"
+        push: true
+      loop:
+        - "{{ nginx_acr_image }}"
+        - "{{ redis_acr_image }}"
+        - "{{ vote_acr_image }}"

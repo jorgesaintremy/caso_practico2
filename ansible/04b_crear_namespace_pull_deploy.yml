@@ -1,0 +1,35 @@
+---
+- name: Crear namespace en AKS
+  hosts: aks_cluster
+  vars_files:
+    - variables.yml
+  tasks:
+    - name: crear namespace
+      kubernetes.core.k8s:
+        name: cp2
+        api_version: v1
+        kind: Namespace
+
+- name: Crear Redis y almacenamiento 
+  hosts: aks_cluster
+  tasks:
+    - name: Crear almacenammiento redis-pvc
+      kubernetes.core.k8s:
+        src: manifests/redis-pvc.yml
+    - name: Desplegar Redis
+      kubernetes.core.k8s:
+        src: manifests/redis.yml
+    - name: crear Servicio backend
+      kubernetes.core.k8s:
+        src: manifests/redis-service.yml
+
+- name: Crear Vote app
+  hosts: aks_cluster
+  tasks:
+    - name: Desplegar Vote app
+      kubernetes.core.k8s:
+        src: manifests/vote.yml
+    - name: crear servicio frontend
+      kubernetes.core.k8s:
+        src: manifests/vote-service.yml
+     

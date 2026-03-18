@@ -1,0 +1,11 @@
+- name: Encriptar Ansible Vault
+  hosts: localhost
+  tasks: 
+    - name: Encriptar variables.yml
+      ansible.builtin.command:
+        cmd: ansible-vault encrypt variables.yml --vaul-password-file vault_pass.txt
+
+- import_playbook: 01_vm_instalar_podman.yml
+- import_playbook: 02_Subir_imagenes_acr.yml
+- import_playbook: 03_instalar_ejecutar_nginx.yml
+- import_playbook: 04b_crear_namspace_pull_deploy.yml
